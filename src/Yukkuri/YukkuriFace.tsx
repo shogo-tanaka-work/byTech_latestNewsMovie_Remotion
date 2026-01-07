@@ -1,192 +1,125 @@
 import React from 'react';
-import { interpolate, useCurrentFrame } from 'remotion';
+import { Img, staticFile, useCurrentFrame } from 'remotion';
 import { Speaker } from '../types/video';
 
 interface YukkuriFaceProps {
   speaker: Speaker;
-  isSpeaking: boolean;
+  isSpeaking?: boolean;
+  scale?: number; // キャラクターのスケール（デフォルト: 1）
 }
 
-export const YukkuriFace: React.FC<YukkuriFaceProps> = ({ speaker, isSpeaking }) => {
+// 霊夢の素材パス
+const reimuAssets = {
+  body: 'yukkuri_reimu/体/00.png',
+  face: 'yukkuri_reimu/顔/00a.png',
+  eyes: 'yukkuri_reimu/目/00.png',
+  // 口パク用の画像（閉じた口から開いた口へ）
+  mouths: [
+    'yukkuri_reimu/口/00.png',  // 閉じた口
+    'yukkuri_reimu/口/03.png',  // 少し開いた口
+    'yukkuri_reimu/口/04.png',  // 中くらい
+    'yukkuri_reimu/口/06.png',  // 大きく開いた口
+  ],
+};
+
+// 魔理沙の素材パス
+const marisaAssets = {
+  body: 'yukkuri_marisa/体/00.png',
+  face: 'yukkuri_marisa/顔/01a.png',
+  eyes: 'yukkuri_marisa/目/00.png',
+  // 口パク用の画像（閉じた口から開いた口へ）
+  mouths: [
+    'yukkuri_marisa/口/00.png',  // 閉じた口
+    'yukkuri_marisa/口/02.png',  // 少し開いた口
+    'yukkuri_marisa/口/04.png',  // 中くらい
+    'yukkuri_marisa/口/06.png',  // 大きく開いた口
+  ],
+};
+
+export const YukkuriFace: React.FC<YukkuriFaceProps> = ({ 
+  speaker, 
+  isSpeaking = false,
+  scale = 1 
+}) => {
   const frame = useCurrentFrame();
+  const assets = speaker === 'reimu' ? reimuAssets : marisaAssets;
+  const baseSize = 400 * scale;
 
-  // 話しているときの口パクアニメーション
-  const mouthOpen = isSpeaking
-    ? interpolate(frame % 10, [0, 5, 10], [0, 1, 0], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      })
-    : 0;
-
-  // キャラクターの色設定
-  const reimuColors = {
-    face: '#FFE4B5',
-    bow: '#FF0000',
-    hair: '#000000',
+  // 口パクのアニメーション
+  // 話している時は、フレームに応じて口の画像を切り替える
+  const getMouthIndex = (): number => {
+    if (!isSpeaking) {
+      return 0; // 話していない時は閉じた口
+    }
+    
+    // 速度調整: 4で割ることで1/4の速度になる（数値を大きくするほど遅くなる）
+    const speedFactor = 4;
+    const adjustedFrame = Math.floor(frame / speedFactor);
+    
+    // 8フレームを1サイクルとして、口を開閉させる
+    // speedFactor=4なので、実際は32フレーム（約1秒@30fps）で1サイクル
+    const cycleLength = 8;
+    const cyclePosition = adjustedFrame % cycleLength;
+    
+    // 口の開閉パターン: 閉じ→開く→閉じ
+    const mouthPattern = [0, 1, 2, 3, 2, 1, 0, 1];
+    return mouthPattern[cyclePosition];
   };
 
-  const marisaColors = {
-    face: '#FFE4B5',
-    hat: '#000000',
-    ribbon: '#FFFFFF',
-  };
-
-  const faceColor = speaker === 'reimu' ? reimuColors.face : marisaColors.face;
+  const mouthIndex = getMouthIndex();
+  const currentMouth = assets.mouths[mouthIndex];
 
   return (
     <div
       style={{
         position: 'relative',
-        width: '200px',
-        height: '200px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: `${baseSize}px`,
+        height: `${baseSize}px`,
       }}
     >
-      {/* 顔 */}
-      <div
+      {/* 体 - 一番下のレイヤー */}
+      <Img
+        src={staticFile(assets.body)}
         style={{
-          width: '180px',
-          height: '180px',
-          borderRadius: '50%',
-          backgroundColor: faceColor,
-          border: '3px solid #000',
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
         }}
-      >
-        {/* 目 */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '40px',
-            marginBottom: '20px',
-          }}
-        >
-          {/* 左目 */}
-          <div
-            style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '50%',
-              backgroundColor: '#000',
-            }}
-          />
-          {/* 右目 */}
-          <div
-            style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '50%',
-              backgroundColor: '#000',
-            }}
-          />
-        </div>
+      />
 
-        {/* 口 */}
-        <div
-          style={{
-            width: `${40 + mouthOpen * 20}px`,
-            height: `${20 + mouthOpen * 15}px`,
-            borderRadius: '50%',
-            backgroundColor: '#000',
-            transition: 'all 0.1s',
-          }}
-        />
+      {/* 顔 - 体の上に重ねる */}
+      <Img
+        src={staticFile(assets.face)}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+        }}
+      />
 
-        {/* キャラクター別の装飾 */}
-        {speaker === 'reimu' && (
-          <>
-            {/* 霊夢のリボン */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '-20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '60px',
-                height: '30px',
-                backgroundColor: reimuColors.bow,
-                border: '2px solid #000',
-                borderRadius: '5px',
-              }}
-            />
-            {/* 髪飾り */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                left: '10px',
-                width: '30px',
-                height: '80px',
-                backgroundColor: reimuColors.hair,
-                border: '2px solid #000',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '10px',
-                width: '30px',
-                height: '80px',
-                backgroundColor: reimuColors.hair,
-                border: '2px solid #000',
-              }}
-            />
-          </>
-        )}
+      {/* 目 */}
+      <Img
+        src={staticFile(assets.eyes)}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+        }}
+      />
 
-        {speaker === 'marisa' && (
-          <>
-            {/* 魔理沙の帽子 */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '-60px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '0',
-                height: '0',
-                borderLeft: '80px solid transparent',
-                borderRight: '80px solid transparent',
-                borderBottom: `80px solid ${marisaColors.hat}`,
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                top: '-10px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '180px',
-                height: '20px',
-                backgroundColor: marisaColors.hat,
-                border: '2px solid #000',
-                borderRadius: '10px',
-              }}
-            />
-            {/* リボン */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '-5px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '40px',
-                height: '15px',
-                backgroundColor: marisaColors.ribbon,
-                border: '2px solid #000',
-              }}
-            />
-          </>
-        )}
-      </div>
+      {/* 口 - 口パクアニメーション */}
+      <Img
+        src={staticFile(currentMouth)}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+        }}
+      />
     </div>
   );
 };
-

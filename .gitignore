@@ -4,9 +4,12 @@ dist
 .env
 .env.local
 
+.playwright-mcp
+
 # Ignore the output video from Git but not videos you import into src/.
 out
 
 # Generated files
 public/audio/
 public/video/
+

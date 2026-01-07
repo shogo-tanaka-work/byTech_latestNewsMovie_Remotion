@@ -7,47 +7,43 @@ interface SubtitleProps {
 }
 
 export const YukkuriSubtitle: React.FC<SubtitleProps> = ({ text, speaker }) => {
-  const speakerName = speaker === 'reimu' ? '霊夢' : '魔理沙';
-  const speakerColor = speaker === 'reimu' ? '#FF0000' : '#000000';
-
   return (
     <div
       style={{
         position: 'absolute',
-        bottom: '100px',
+        bottom: '30px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '80%',
-        maxWidth: '1200px',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        border: '4px solid #000',
-        borderRadius: '10px',
-        padding: '30px 40px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+        width: '55%',
+        maxWidth: '1000px',
+        zIndex: 15,
       }}
     >
-      {/* <div
-        style={{
-          fontSize: '32px',
-          fontWeight: 'bold',
-          color: speakerColor,
-          marginBottom: '10px',
-        }}
-      >
-        {speakerName}
-      </div> */}
+      {/* 字幕テキストエリア */}
       <div
         style={{
-          fontSize: '48px',
-          color: '#000',
-          lineHeight: '1.5',
-          fontWeight: 'bold',
-          textShadow: '2px 2px 0px #fff',
+          // backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          padding: '16px 28px',
+          textAlign: 'center',
+          borderRadius: '8px',
         }}
       >
-        {text}
+        <div
+          style={{
+            fontSize: '36px',
+            color: speaker === 'reimu' ? '#FF6B6B' : '#FFFFFF',
+            lineHeight: '1.4',
+            fontWeight: 'bold',
+            letterSpacing: '1px',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {text}
+        </div>
       </div>
     </div>
   );
 };
-

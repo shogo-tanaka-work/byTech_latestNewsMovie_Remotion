@@ -14,6 +14,7 @@ export const SampleVideoConfig: VideoConfig = {
           id: '001',
           audioDurationFrames: 150, // 約5秒（30fps）
           audioSrc: 'audio/001_春日部つむぎ（ノーマル）_Difyのスタジオ….wav',
+          backgroundVideo: 'video/dify_trigger.mov',
         },
         {
           text: 'アプリのタイプで「ワークフロー」を選択し、任意のアプリ名（例：トリガ）を入力して「作成する」をクリックします。',
@@ -21,6 +22,7 @@ export const SampleVideoConfig: VideoConfig = {
           id: '002',
           audioDurationFrames: 150, // 約3秒
           audioSrc: 'audio/002_春日部つむぎ（ノーマル）_アプリのタイプで「….wav',
+          backgroundVideo: 'video/HelloWorld.mp4',
         },
         {
           text: 'ワークフローの編集画面（キャンバス）が立ち上がります。',

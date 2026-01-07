@@ -7,6 +7,7 @@ export interface Talk {
   id: string;
   audioDurationFrames: number;
   audioSrc?: string; // 音声ファイルのパス（オプション）
+  backgroundVideo?: string; // 個別トークの背景動画（オプション）
 }
 
 export interface Section {
