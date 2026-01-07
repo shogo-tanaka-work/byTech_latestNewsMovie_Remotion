@@ -1,0 +1,2 @@
+# byTech_latestNewsMovie_Remotion
+動画教材の最新情報をRemotionで作成する。
